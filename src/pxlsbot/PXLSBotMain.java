@@ -27,7 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -39,7 +42,8 @@ public class PXLSBotMain {
     static final List<Integer> palette;
 
     static {
-        List<Color> colors = Arrays.asList(new Color(255, 255, 255),
+        List<Color> colors = Arrays.asList(
+                new Color(255, 255, 255),
                 new Color(205, 205, 205),
                 new Color(136, 136, 136),
                 new Color(85, 85, 85),
@@ -84,6 +88,8 @@ public class PXLSBotMain {
     static JToggleButton button1;
 
     static JToggleButton button2;
+
+    static JCheckBox offWhenDone;
 
     static JWindow pointer;
 
@@ -174,6 +180,10 @@ public class PXLSBotMain {
         tField.setFont(new Font("Consolas", Font.PLAIN, 15));
         frame.add(tField);
 
+        offWhenDone = new JCheckBox("Turn off computer when completed");
+        offWhenDone.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        frame.add(offWhenDone);
+
         frame.pack();
 
         frame.setVisible(true);
@@ -209,20 +219,29 @@ public class PXLSBotMain {
                 int scale = Integer.parseInt(tField.getText());
                 int w = image.getWidth(), h = image.getHeight();
                 selCol = 0;
-                ImagePixelIterator ipi = new ImagePixelIterator(image);
+                Iterator<Point> pIter = new ImagePixelIterator(image);
                 int x = 0, y = 0;
-                for (Point p = ipi.next(); flag && p != null; p = ipi.next()) {
+                for (Point p = pIter.next();
+                        flag && p != null && p.y < h && p.x < w;
+                        p = pIter.next()) {
+                    frame.requestFocus();
                     int dX = p.x - x, dY = p.y - y;
                     if (dX != 0) {
                         if (dX < 0) {
                             while (flag && dX++ < 0) {
                                 drag(r, at.x, at.y, at.x + scale, at.y);
-                                System.out.println("left");
+                                System.out.println("left " + dX);
+                                if (dX != 0) {
+                                    frame.requestFocus();
+                                }
                             }
                         } else {
                             while (flag && dX-- > 0) {
                                 drag(r, at.x + scale, at.y, at.x, at.y);
-                                System.out.println("right");
+                                System.out.println("right " + dX);
+                                if (dX != 0) {
+                                    frame.requestFocus();
+                                }
                             }
                         }
                     }
@@ -231,21 +250,27 @@ public class PXLSBotMain {
                     }
                     if (dY != 0) {
                         if (dY < 0) {
-                            while(flag && dY++ < 0) {
+                            while (flag && dY++ < 0) {
                                 drag(r, at.x, at.y, at.x, at.y + scale);
-                                System.out.println("up");
+                                System.out.println("up " + dY);
+                                if (dY != 0) {
+                                    frame.requestFocus();
+                                }
                             }
                         } else {
-                            while(flag && dY-- > 0) {
+                            while (flag && dY-- > 0) {
                                 drag(r, at.x, at.y + scale, at.x, at.y);
-                                System.out.println("down");
+                                System.out.println("down " + dY);
+                                if (dY != 0) {
+                                    frame.requestFocus();
+                                }
                             }
                         }
                     }
                     if (!flag) {
                         return;
                     }
-                    
+
                     x = p.x;
                     y = p.y;
                     placePixel(x, y, scale, r);
@@ -315,22 +340,32 @@ public class PXLSBotMain {
                         return;
                     }
                 }*/
-                
+
                 System.out.println("DONE!");
-            } catch (AWTException | InterruptedException ex) {
+
+                if (offWhenDone.isSelected()) {
+                    System.out.println("Shutting down....");
+                    Runtime runtime = Runtime.getRuntime();
+                    Process proc = runtime.exec(
+                            "shutdown /s /t 0 /c \"Job complete!\"");
+                    System.exit(0);
+                }
+            } catch (AWTException | InterruptedException | IOException ex) {
                 ex.printStackTrace();
             }
         }).start();
     }
+    
+    private static final long TOGGLE = 60L;
 
     private static void placePixel(int x, int y, int scale, Robot r) throws InterruptedException {
         int temp_ = image.getRGB(x, y);
         boolean first = true;
         System.out.println("@(" + y + ", " + x + "): "
-                + Integer.toString(temp_, 2));
+                + new Color(temp_));
         if (temp_ != transparent) {
             r.mouseMove(at.x + scale, at.y);
-            sleep(90);
+            sleep(TOGGLE);
             while (flag && r.getPixelColor(at.x, at.y).getRGB() != temp_) {
                 //<editor-fold defaultstate="collapsed" desc="if first">
                 if (first) {
@@ -342,35 +377,32 @@ public class PXLSBotMain {
                             idx += palette.size();
                         }
 
-                        if (!flag) {
+                        /*if (!flag) {
                             return;
                         }
-                        if (selCol != idx) {
-                            r.mouseMove(at.x + scale, at.y);
-                            sleep(MED);
-                            r.mousePress(MouseEvent.BUTTON1_DOWN_MASK);
-                            sleep(SLOW);
-                            r.mouseMove(at.x, at.y);
-                            sleep(SLOW);
-                            r.mouseMove(at.x + scale, at.y);
-                            sleep(MED);
-                            r.mouseRelease(MouseEvent.BUTTON1_DOWN_MASK);
-                            sleep(MED);
-                            System.out.println("shake");
-                        }
-
+                        r.mouseMove(at.x + scale, at.y);
+                        sleep(MED);
+                        r.mousePress(MouseEvent.BUTTON1_DOWN_MASK);
+                        sleep(SLOW);
+                        r.mouseMove(at.x, at.y);
+                        sleep(SLOW);
+                        r.mouseMove(at.x + scale, at.y);
+                        sleep(MED);
+                        r.mouseRelease(MouseEvent.BUTTON1_DOWN_MASK);
+                        sleep(MED);
+                        System.out.println("shake");*/
                         if (!flag) {
                             return;
                         }
                         for (; selCol < idx && flag; selCol++) {
                             r.keyPress(VK_K);
-                            sleep(FAST);
+                            sleep(25);
                             r.keyRelease(VK_K);
-                            sleep(FAST);
+                            sleep(25);
                             System.out.print("k");
                         }
                         selCol %= palette.size();
-                        System.out.println("idx: " + idx + "\tselCol: " + selCol);
+                        System.out.println("\nidx: " + idx + "\tselCol: " + selCol);
                     }
 
                     first = false;
@@ -388,7 +420,7 @@ public class PXLSBotMain {
                 r.mouseRelease(MouseEvent.BUTTON1_DOWN_MASK);
                 sleep(FAST);
                 r.mouseMove(at.x + scale, at.y);
-                sleep(90);
+                sleep(TOGGLE);
             }
 
             sleep(FAST);
