@@ -33,9 +33,12 @@ import javax.imageio.ImageIO;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JWindow;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class PXLSBotMain {
 
@@ -90,6 +93,8 @@ public class PXLSBotMain {
     static JToggleButton button2;
 
     static JCheckBox offWhenDone;
+    
+    static JCheckBox repeat;
 
     static JWindow pointer;
 
@@ -180,9 +185,38 @@ public class PXLSBotMain {
         tField.setFont(new Font("Consolas", Font.PLAIN, 15));
         frame.add(tField);
 
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        
+        Font fTemp = new Font("Segoe UI", Font.PLAIN, 12);
         offWhenDone = new JCheckBox("Turn off computer when completed");
-        offWhenDone.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        frame.add(offWhenDone);
+        offWhenDone.setFont(fTemp);
+        panel.add(offWhenDone);
+        
+        repeat = new JCheckBox("Repeat job when done");
+        repeat.setFont(fTemp);
+        panel.add(repeat);
+        
+        JCheckBox meme = new JCheckBox("Chew an egg");
+        meme.setFont(fTemp);
+        meme.addChangeListener((e) -> {
+            if (meme.isSelected()) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+                meme.setSelected(false);
+            }
+        });
+        panel.add(meme);
+        
+        panel.revalidate();
+        
+        panel.setPreferredSize(new Dimension(
+                offWhenDone.getPreferredSize().width, 100));
+        
+        frame.add(panel);
 
         frame.pack();
 
@@ -219,127 +253,130 @@ public class PXLSBotMain {
                 int scale = Integer.parseInt(tField.getText());
                 int w = image.getWidth(), h = image.getHeight();
                 selCol = 0;
-                Iterator<Point> pIter = new ImagePixelIterator(image);
                 int x = 0, y = 0;
-                for (Point p = pIter.next();
-                        flag && p != null && p.y < h && p.x < w;
-                        p = pIter.next()) {
-                    frame.requestFocus();
-                    int dX = p.x - x, dY = p.y - y;
-                    if (dX != 0) {
-                        if (dX < 0) {
-                            while (flag && dX++ < 0) {
-                                drag(r, at.x, at.y, at.x + scale, at.y);
-                                System.out.println("left " + dX);
-                                if (dX != 0) {
-                                    frame.requestFocus();
-                                }
-                            }
-                        } else {
-                            while (flag && dX-- > 0) {
-                                drag(r, at.x + scale, at.y, at.x, at.y);
-                                System.out.println("right " + dX);
-                                if (dX != 0) {
-                                    frame.requestFocus();
-                                }
-                            }
-                        }
-                    }
-                    if (!flag) {
-                        return;
-                    }
-                    if (dY != 0) {
-                        if (dY < 0) {
-                            while (flag && dY++ < 0) {
-                                drag(r, at.x, at.y, at.x, at.y + scale);
-                                System.out.println("up " + dY);
-                                if (dY != 0) {
-                                    frame.requestFocus();
-                                }
-                            }
-                        } else {
-                            while (flag && dY-- > 0) {
-                                drag(r, at.x, at.y + scale, at.x, at.y);
-                                System.out.println("down " + dY);
-                                if (dY != 0) {
-                                    frame.requestFocus();
-                                }
-                            }
-                        }
-                    }
-                    if (!flag) {
-                        return;
-                    }
-
-                    x = p.x;
-                    y = p.y;
-                    placePixel(x, y, scale, r);
-                    if (!flag) {
-                        return;
-                    }
-                }
-                /*outer:
-                for (int i = 0; i < h && flag; i++) {
-                    for (int j = 0; j < w && flag; j++) {
-                        placePixel(j, i, scale, r);
-
-                        if (!flag) {
-                            return;
-                        }
-                        drag(r, at.x + scale, at.y, at.x, at.y);
-                        System.out.println("right");
+                
+                do {
+                    Iterator<Point> pIter = new ImagePixelIterator(image);
+                    for (Point p = pIter.next();
+                            flag && p != null && p.y < h && p.x < w;
+                            p = pIter.next()) {
                         frame.requestFocus();
-                    }
-                    if (!flag) {
-                        return;
-                    }
-                    drag(r, at.x, at.y + scale, at.x, at.y);
-                    System.out.println("down");
-                    if (!flag) {
-                        return;
-                    }
-
-                    sleep(MED);
-
-                    drag(r, at.x, at.y, at.x + scale, at.y);
-                    System.out.println("left");
-                    if (!flag) {
-                        return;
-                    }
-
-                    i++;
-                    if (i >= h) {
-                        break outer;
-                    }
-
-                    for (int j = w - 1; j >= 0 && flag; j--) {
-                        placePixel(j, i, scale, r);
-
+                        int dX = p.x - x, dY = p.y - y;
+                        if (dX != 0) {
+                            if (dX < 0) {
+                                while (flag && dX++ < 0) {
+                                    drag(r, at.x, at.y, at.x + scale, at.y);
+                                    System.out.println("left " + dX);
+                                    if (dX != 0) {
+                                        frame.requestFocus();
+                                    }
+                                }
+                            } else {
+                                while (flag && dX-- > 0) {
+                                    drag(r, at.x + scale, at.y, at.x, at.y);
+                                    System.out.println("right " + dX);
+                                    if (dX != 0) {
+                                        frame.requestFocus();
+                                    }
+                                }
+                            }
+                        }
                         if (!flag) {
                             return;
                         }
+                        if (dY != 0) {
+                            if (dY < 0) {
+                                while (flag && dY++ < 0) {
+                                    drag(r, at.x, at.y, at.x, at.y + scale);
+                                    System.out.println("up " + dY);
+                                    if (dY != 0) {
+                                        frame.requestFocus();
+                                    }
+                                }
+                            } else {
+                                while (flag && dY-- > 0) {
+                                    drag(r, at.x, at.y + scale, at.x, at.y);
+                                    System.out.println("down " + dY);
+                                    if (dY != 0) {
+                                        frame.requestFocus();
+                                    }
+                                }
+                            }
+                        }
+                        if (!flag) {
+                            return;
+                        }
+
+                        x = p.x;
+                        y = p.y;
+                        placePixel(x, y, scale, r);
+                        if (!flag) {
+                            return;
+                        }
+                    }
+                    /*outer:
+                    for (int i = 0; i < h && flag; i++) {
+                        for (int j = 0; j < w && flag; j++) {
+                            placePixel(j, i, scale, r);
+
+                            if (!flag) {
+                                return;
+                            }
+                            drag(r, at.x + scale, at.y, at.x, at.y);
+                            System.out.println("right");
+                            frame.requestFocus();
+                        }
+                        if (!flag) {
+                            return;
+                        }
+                        drag(r, at.x, at.y + scale, at.x, at.y);
+                        System.out.println("down");
+                        if (!flag) {
+                            return;
+                        }
+
+                        sleep(MED);
+
                         drag(r, at.x, at.y, at.x + scale, at.y);
                         System.out.println("left");
-                        frame.requestFocus();
-                    }
-                    if (!flag) {
-                        return;
-                    }
+                        if (!flag) {
+                            return;
+                        }
 
-                    drag(r, at.x, at.y + scale, at.x, at.y);
-                    System.out.println("down");
-                    if (!flag) {
-                        return;
-                    }
+                        i++;
+                        if (i >= h) {
+                            break outer;
+                        }
 
-                    sleep(MED);
+                        for (int j = w - 1; j >= 0 && flag; j--) {
+                            placePixel(j, i, scale, r);
 
-                    drag(r, at.x + scale, at.y, at.x, at.y);
-                    System.out.println("right");
-                    if (!flag) {
-                        return;
-                    }
-                }*/
+                            if (!flag) {
+                                return;
+                            }
+                            drag(r, at.x, at.y, at.x + scale, at.y);
+                            System.out.println("left");
+                            frame.requestFocus();
+                        }
+                        if (!flag) {
+                            return;
+                        }
+
+                        drag(r, at.x, at.y + scale, at.x, at.y);
+                        System.out.println("down");
+                        if (!flag) {
+                            return;
+                        }
+
+                        sleep(MED);
+
+                        drag(r, at.x + scale, at.y, at.x, at.y);
+                        System.out.println("right");
+                        if (!flag) {
+                            return;
+                        }
+                    }*/
+                } while(flag && repeat.isSelected());
 
                 System.out.println("DONE!");
 
