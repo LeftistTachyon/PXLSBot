@@ -393,7 +393,7 @@ public class PXLSBotMain {
         }).start();
     }
     
-    private static final long TOGGLE = 60L;
+    private static final long TOGGLE = 65L;
 
     private static void placePixel(int x, int y, int scale, Robot r) throws InterruptedException {
         int temp_ = image.getRGB(x, y);
