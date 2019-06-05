@@ -106,7 +106,7 @@ public class PXLSBotMain {
 
     static volatile boolean flag = true;
 
-    static final long FAST = 10, MED = 130, SLOW = 170;
+    static final long FAST = 10, MED = 140, SLOW = 180;
 
     public static void main(String[] args) {
         System.out.println("Remember, Y equals QUIT");
@@ -393,7 +393,7 @@ public class PXLSBotMain {
         }).start();
     }
     
-    private static final long TOGGLE = 65L;
+    private static final long TOGGLE = 80L;
 
     private static void placePixel(int x, int y, int scale, Robot r) throws InterruptedException {
         int temp_ = image.getRGB(x, y);
@@ -414,28 +414,28 @@ public class PXLSBotMain {
                             idx += palette.size();
                         }
 
-                        /*if (!flag) {
-                            return;
+                        if (frame.isFocusOwner()) {
+                            if (!flag) {
+                                return;
+                            }
+                            r.mouseMove(at.x + scale, at.y);
+                            sleep(MED);
+                            r.mousePress(MouseEvent.BUTTON1_DOWN_MASK);
+                            sleep(SLOW);
+                            r.mouseMove(at.x, at.y);
+                            sleep(SLOW);
+                            r.mouseMove(at.x + scale, at.y);
+                            sleep(MED);
+                            r.mouseRelease(MouseEvent.BUTTON1_DOWN_MASK);
+                            sleep(MED);
+                            System.out.println("shake");
                         }
-                        r.mouseMove(at.x + scale, at.y);
-                        sleep(MED);
-                        r.mousePress(MouseEvent.BUTTON1_DOWN_MASK);
-                        sleep(SLOW);
-                        r.mouseMove(at.x, at.y);
-                        sleep(SLOW);
-                        r.mouseMove(at.x + scale, at.y);
-                        sleep(MED);
-                        r.mouseRelease(MouseEvent.BUTTON1_DOWN_MASK);
-                        sleep(MED);
-                        System.out.println("shake");*/
-                        if (!flag) {
-                            return;
-                        }
+                        
                         for (; selCol < idx && flag; selCol++) {
                             r.keyPress(VK_K);
-                            sleep(25);
+                            sleep(30);
                             r.keyRelease(VK_K);
-                            sleep(25);
+                            sleep(30);
                             System.out.print("k");
                         }
                         selCol %= palette.size();
