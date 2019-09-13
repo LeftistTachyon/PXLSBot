@@ -189,7 +189,9 @@ public class PXLSBotMain {
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         
         Font fTemp = new Font("Segoe UI", Font.PLAIN, 12);
-        offWhenDone = new JCheckBox("Turn off computer when completed");
+        offWhenDone = new JCheckBox("<html><center>"
+                + "Turn off computer when completed<br>"
+                + "(Windows only)</center></html>");
         offWhenDone.setFont(fTemp);
         panel.add(offWhenDone);
         
