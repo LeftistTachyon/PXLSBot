@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -37,8 +35,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JWindow;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class PXLSBotMain {
 
@@ -53,20 +49,24 @@ public class PXLSBotMain {
                 new Color(34, 34, 34),
                 new Color(0, 0, 0),
                 new Color(255, 167, 209),
+                new Color(253, 70, 89),
                 new Color(229, 0, 0),
                 new Color(128, 0, 0),
                 new Color(255, 221, 202),
                 new Color(246, 179, 137),
                 new Color(229, 149, 0),
+                new Color(255, 91, 0),
                 new Color(160, 106, 66),
                 new Color(96, 64, 40),
                 new Color(255, 255, 0),
                 new Color(148, 224, 68),
                 new Color(2, 190, 1),
                 new Color(0, 95, 0),
+                new Color(67, 235, 194),
                 new Color(0, 211, 221),
                 new Color(0, 131, 199),
                 new Color(0, 0, 234),
+                new Color(3, 7, 100),
                 new Color(207, 110, 228),
                 new Color(255, 0, 255),
                 new Color(130, 0, 128));
@@ -111,7 +111,7 @@ public class PXLSBotMain {
     public static void main(String[] args) {
         System.out.println("Remember, Y equals QUIT");
 
-        frame = new JFrame("LMAO");
+        frame = new JFrame("Totally not a PXLS bot");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new FlowLayout());
         frame.setResizable(false);
@@ -202,7 +202,7 @@ public class PXLSBotMain {
         meme.addChangeListener((e) -> {
             if (meme.isSelected()) {
                 try {
-                    Thread.sleep(500);
+                    sleep(500);
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
@@ -222,32 +222,14 @@ public class PXLSBotMain {
 
         frame.setVisible(true);
     }
-
-    /*public static void sleep(long millis) throws InterruptedException {
-        final Object LOCK = new Object();
-        ScheduledExecutorService stse = Executors.newSingleThreadScheduledExecutor();
-        stse.schedule(() -> {
-            try {
-                synchronized (LOCK) {
-                    LOCK.notify();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }, millis, TimeUnit.MILLISECONDS);
-        synchronized (LOCK) {
-            LOCK.wait();
-        }
-        stse = null;
-        System.gc();
-    }*/
-    static final int transparent = new Color(0, 0, 0, 0).getRGB();
+    
+    static final int TRANSPARENT = new Color(0, 0, 0, 0).getRGB();
 
     static int selCol;
 
     private static void whenReadyToggled() {
         new Thread(() -> {
-            System.out.println("trans: " + Integer.toString(transparent, 2));
+            // System.out.println("trans: " + Integer.toString(TRANSPARENT, 2));
             try {
                 Robot r = new Robot();
                 int scale = Integer.parseInt(tField.getText());
@@ -314,68 +296,70 @@ public class PXLSBotMain {
                             return;
                         }
                     }
+                    //<editor-fold defaultstate="collapsed" desc="old way">
                     /*outer:
                     for (int i = 0; i < h && flag; i++) {
-                        for (int j = 0; j < w && flag; j++) {
-                            placePixel(j, i, scale, r);
-
-                            if (!flag) {
-                                return;
-                            }
-                            drag(r, at.x + scale, at.y, at.x, at.y);
-                            System.out.println("right");
-                            frame.requestFocus();
-                        }
-                        if (!flag) {
-                            return;
-                        }
-                        drag(r, at.x, at.y + scale, at.x, at.y);
-                        System.out.println("down");
-                        if (!flag) {
-                            return;
-                        }
-
-                        sleep(MED);
-
-                        drag(r, at.x, at.y, at.x + scale, at.y);
-                        System.out.println("left");
-                        if (!flag) {
-                            return;
-                        }
-
-                        i++;
-                        if (i >= h) {
-                            break outer;
-                        }
-
-                        for (int j = w - 1; j >= 0 && flag; j--) {
-                            placePixel(j, i, scale, r);
-
-                            if (!flag) {
-                                return;
-                            }
-                            drag(r, at.x, at.y, at.x + scale, at.y);
-                            System.out.println("left");
-                            frame.requestFocus();
-                        }
-                        if (!flag) {
-                            return;
-                        }
-
-                        drag(r, at.x, at.y + scale, at.x, at.y);
-                        System.out.println("down");
-                        if (!flag) {
-                            return;
-                        }
-
-                        sleep(MED);
-
-                        drag(r, at.x + scale, at.y, at.x, at.y);
-                        System.out.println("right");
-                        if (!flag) {
-                            return;
-                        }
+                    for (int j = 0; j < w && flag; j++) {
+                    placePixel(j, i, scale, r);
+                    
+                    if (!flag) {
+                    return;
+                    }
+                    drag(r, at.x + scale, at.y, at.x, at.y);
+                    System.out.println("right");
+                    frame.requestFocus();
+                    }
+                    if (!flag) {
+                    return;
+                    }
+                    drag(r, at.x, at.y + scale, at.x, at.y);
+                    System.out.println("down");
+                    if (!flag) {
+                    return;
+                    }
+                    
+                    sleep(MED);
+                    
+                    drag(r, at.x, at.y, at.x + scale, at.y);
+                    System.out.println("left");
+                    if (!flag) {
+                    return;
+                    }
+                    
+                    i++;
+                    if (i >= h) {
+                    break outer;
+                    }
+                    
+                    for (int j = w - 1; j >= 0 && flag; j--) {
+                    placePixel(j, i, scale, r);
+                    
+                    if (!flag) {
+                    return;
+                    }
+                    drag(r, at.x, at.y, at.x + scale, at.y);
+                    System.out.println("left");
+                    frame.requestFocus();
+                    }
+                    if (!flag) {
+                    return;
+                    }
+                    
+                    drag(r, at.x, at.y + scale, at.x, at.y);
+                    System.out.println("down");
+                    if (!flag) {
+                    return;
+                    }
+                    
+                    sleep(MED);
+                    
+                    drag(r, at.x + scale, at.y, at.x, at.y);
+                    System.out.println("right");
+                    if (!flag) {
+                    return;
+                    }
                     }*/
+                    //</editor-fold>
                 } while(flag && repeat.isSelected());
 
                 System.out.println("DONE!");
@@ -400,7 +384,7 @@ public class PXLSBotMain {
         boolean first = true;
         System.out.println("@(" + y + ", " + x + "): "
                 + new Color(temp_));
-        if (temp_ != transparent) {
+        if (temp_ != TRANSPARENT) {
             r.mouseMove(at.x + scale, at.y);
             sleep(TOGGLE);
             while (flag && r.getPixelColor(at.x, at.y).getRGB() != temp_) {
@@ -608,14 +592,14 @@ public class PXLSBotMain {
             for (; y < h; y++) {
                 if (y % 2 == 0) {
                     for (; x < w; x++) {
-                        if (bi.getRGB(x, y) != transparent) {
+                        if (bi.getRGB(x, y) != TRANSPARENT) {
                             break outer;
                         }
                     }
                     x--;
                 } else {
                     for (; x >= 0; x--) {
-                        if (bi.getRGB(x, y) != transparent) {
+                        if (bi.getRGB(x, y) != TRANSPARENT) {
                             break outer;
                         }
                     }
