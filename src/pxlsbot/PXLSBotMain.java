@@ -38,7 +38,7 @@ import javax.swing.JWindow;
 
 public class PXLSBotMain {
 
-    static final List<Integer> palette;
+    static final List<Integer> PALETTE;
 
     static {
         List<Color> colors = Arrays.asList(
@@ -70,22 +70,22 @@ public class PXLSBotMain {
                 new Color(207, 110, 228),
                 new Color(255, 0, 255),
                 new Color(130, 0, 128));
-        palette = new ArrayList<>();
+        PALETTE = new ArrayList<>();
         for (Color c : colors) {
-            palette.add(c.getRGB());
+            PALETTE.add(c.getRGB());
         }
     }
 
-    static final BufferedImage image;
+    static final BufferedImage IMAGE;
 
     static {
         BufferedImage temp = null;
         try {
             temp = ImageIO.read(new File("image.png"));
         } catch (IOException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.err);
         }
-        image = temp;
+        IMAGE = temp;
     }
 
     static JToggleButton button1;
@@ -204,7 +204,7 @@ public class PXLSBotMain {
                 try {
                     sleep(500);
                 } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                    ex.printStackTrace(System.err);
                 }
                 meme.setSelected(false);
             }
@@ -233,12 +233,12 @@ public class PXLSBotMain {
             try {
                 Robot r = new Robot();
                 int scale = Integer.parseInt(tField.getText());
-                int w = image.getWidth(), h = image.getHeight();
+                int w = IMAGE.getWidth(), h = IMAGE.getHeight();
                 selCol = 0;
                 int x = 0, y = 0;
                 
                 do {
-                    Iterator<Point> pIter = new ImagePixelIterator(image);
+                    Iterator<Point> pIter = new ImagePixelIterator(IMAGE);
                     for (Point p = pIter.next();
                             flag && p != null && p.y < h && p.x < w;
                             p = pIter.next()) {
@@ -372,15 +372,16 @@ public class PXLSBotMain {
                     System.exit(0);
                 }
             } catch (AWTException | InterruptedException | IOException ex) {
-                ex.printStackTrace();
+                ex.printStackTrace(System.err);
             }
         }).start();
     }
     
     private static final long TOGGLE = 80L;
 
+    @SuppressWarnings("SleepWhileInLoop")
     private static void placePixel(int x, int y, int scale, Robot r) throws InterruptedException {
-        int temp_ = image.getRGB(x, y);
+        int temp_ = IMAGE.getRGB(x, y);
         boolean first = true;
         System.out.println("@(" + y + ", " + x + "): "
                 + new Color(temp_));
@@ -391,11 +392,11 @@ public class PXLSBotMain {
                 //<editor-fold defaultstate="collapsed" desc="if first">
                 if (first) {
                     System.out.println("First!");
-                    int idx = palette.indexOf(temp_);
+                    int idx = PALETTE.indexOf(temp_);
                     System.out.println("idx: " + idx + "\tselCol: " + selCol);
                     if (idx != selCol) {
                         if (idx < selCol) {
-                            idx += palette.size();
+                            idx += PALETTE.size();
                         }
 
                         if (frame.isFocusOwner()) {
@@ -422,7 +423,7 @@ public class PXLSBotMain {
                             sleep(30);
                             System.out.print("k");
                         }
-                        selCol %= palette.size();
+                        selCol %= PALETTE.size();
                         System.out.println("\nidx: " + idx + "\tselCol: " + selCol);
                     }
 
@@ -459,7 +460,7 @@ public class PXLSBotMain {
         sleep(MED);
     }
 
-    public static class Draggable extends JWindow {
+    public static final class Draggable extends JWindow {
 
         int X;
         int Y;
